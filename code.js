@@ -18,7 +18,7 @@ var speed = 0;
 
 //creating bullet array
 var bullets=[];
-bullets[0] = {x:null, y:null, accel:null, scale:null};
+bullets[0] = {x:null, y:900, accel:null, scale:null, decay:false};
 
 //img creation
 var ship = new Image();
@@ -126,23 +126,32 @@ if (speed<2 && (up==true || down==true || left==true || right==true)) {speed += 
 
 //remove rocket somehow
   for(var i=0; i<bullets.length; i++) {
-        if(bullets[i].x >canvas.width) {
+        if(bullets[i].x >canvas.width || bullets[i].scale/5+10<0) {
             bullets.splice(i--, 1);
         };
     };
 
 //draw rocket good
   for(var i=0; i<bullets.length; i++) {
-      ctx.drawImage(bullet, bullets[i].x, bullets[i].y, bullets[i].scale+0.5, bullets[i].scale+0.5);
-      bullets[i].x +=5+bullets[i].accel;
-      bullets[i].accel +=0.2;
-      bullets[i].scale = bullets[i].accel
+      ctx.drawImage(bullet, bullets[i].x, bullets[i].y, bullets[i].scale/5+10, bullets[i].scale/5+10);
+      bullets[i].x +=7+bullets[i].accel;
+      bullets[i].y +=bullets[i].accel/10;
+      bullets[i].accel +=0.1;
+      if (bullets[i].accel < 5 && bullets[i].decay == false) {
+        bullets[i].scale = -bullets[i].accel;
+      }
+      if (bullets[i].accel > 5 || bullets[i].decay == true) {
+        bullets[i].decay = true;
+        bullets[i].y += 4;
+        bullets[i].accel -=0.8;
+        bullets[i].scale -=1;
+      };
 
   };
 
 //fires the bullet
   fireBullet = function() {
-        bullets.push({x:xp+40, y:yp+23, accel:0, scale:0});
+        bullets.push({x:xp+43, y:yp+23, accel:Math.random(), scale:0, decay:false});
 
       };
 
