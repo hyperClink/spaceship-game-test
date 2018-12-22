@@ -37,9 +37,10 @@ var keyupkey='null';
 var enemyTimer = 0;
 var enemyRate = 30;
 
-//creating bullet array
+//creating arrays
 var bullets=[];
 var enemies=[];
+var bg=[];
 
 //img creation
 var ship = new Image();
@@ -180,7 +181,6 @@ function keyupkey1(keyu) {
 
 //engine
 function draw() {
-  ctx.drawImage(bg, 0, 0);
   ctx.drawImage(ship, xp, yp);
   requestAnimationFrame(draw);
 
@@ -238,6 +238,14 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
   if (xp+ship.width>canvas.width){xp=canvas.width-ship.width; xspeed=0}
   if (yp<0){yp=0; yspeed=0}
   if (yp+ship.height>canvas.height){yp=canvas.height-ship.height; yspeed=0}
+
+//bg scroll
+for (var i = 0; i < bg.length; i++) {
+  ctx.drawImage(bg, bg[i].x, 0);
+  if (bg[i].x = 0)
+  bg.push({x:canvas.width})
+  bg[i].x--;
+}
 
 //specials
   //specials timer
@@ -358,6 +366,7 @@ for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length
      };
    };
 
+
 //bullets logic
   for(var i=0; i<bullets.length; i++) {
       ctx.drawImage(bullets[i].type, bullets[i].x, bullets[i].y, bullets[i].scaleX, bullets[i].scaleY);
@@ -386,6 +395,7 @@ for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length
 
   };
 
+
 //enemy draw
     for(var i=0; i<enemies.length; i++) {
       ctx.drawImage(enemies[i].type, enemies[i].x, enemies[i].y);
@@ -394,9 +404,7 @@ for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length
   };
 
 //enemy shoots
-
   n=randomInt(1, enemies.length);
-
   //enemy2 bullets
   for (var i = 0; i < 4; i++) {
   if (enemyTimer%5==0 && enemies.length != 'undefined' && enemies.length != 0 && enemies[n-1].type === enemy2) {
@@ -427,8 +435,6 @@ for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length
     0.5, eBullet, 0);
 
   };
-
-
 
 //spawn enemies
     enemyTimer++;
