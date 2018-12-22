@@ -6,6 +6,7 @@ var ctx = canvas.getContext('2d');
 var score = 0;
 var scoreMax = 0;
 var scoreOutput = document.getElementById('score');
+
 //ship start variables
 var yp = 100;
 var xp = 20;
@@ -40,7 +41,9 @@ var enemyRate = 30;
 //creating arrays
 var bullets=[];
 var enemies=[];
-var bg=[];
+
+var bckg = [{x:0,y:0}];
+
 
 //img creation
 var ship = new Image();
@@ -63,7 +66,6 @@ eBullet.src='img/enemyBullet.png';
 //key check
 document.addEventListener("keydown", keydownkey1);
 document.addEventListener('keyup', keyupkey1);
-
 //key down check
 function keydownkey1(keyd) {
     switch(keyd.key){
@@ -171,6 +173,11 @@ function keyupkey1(keyu) {
       enemies.push({x:x, y:y, hp:hp, speed:speed, accel:accelInit, accelI:accel, kbAbility:KBAbility, type:type, bulleyX:bx, bulletY:by});
     };
 
+  //adds bckg
+  addBckg = function() {
+    bckg.push({x:canvas.width, y:0})
+  };
+
   //random integer
    randomInt = function(min, max) {
      min = Math.ceil(min);
@@ -178,9 +185,23 @@ function keyupkey1(keyu) {
      return Math.floor(Math.random()*(max-min+1))+min;
    };
 
-
 //engine
 function draw() {
+
+  //bckg scroll
+  for (var i = 0; i < bckg.length; i++) {
+    ctx.drawImage(bg, bckg[i].x, bckg[i].y, canvas.width, canvas.height);
+    if(bckg[i].x==0){
+      bckg.push({x:canvas.width, y:0})
+    }
+
+    console.log(bckg.length + ' ' +bckg[i].x);
+    bckg[i].x-=1;
+    if(bckg[i].x+bg.width==-canvas.width){
+      bckg.splice(i--, 1)
+    }
+  }
+
   ctx.drawImage(ship, xp, yp);
   requestAnimationFrame(draw);
 
@@ -239,13 +260,6 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
   if (yp<0){yp=0; yspeed=0}
   if (yp+ship.height>canvas.height){yp=canvas.height-ship.height; yspeed=0}
 
-//bg scroll
-for (var i = 0; i < bg.length; i++) {
-  ctx.drawImage(bg, bg[i].x, 0);
-  if (bg[i].x = 0)
-  bg.push({x:canvas.width})
-  bg[i].x--;
-}
 
 //specials
   //specials timer
@@ -447,6 +461,7 @@ for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length
                   //x, y, hp, speed, accelInit., accel, -knockback, type
       spawnEnemy(canvas.width, randomInt(0,canvas.height), 1, 4, Math.random()*1.2, 0.06*Math.random(), -1, enemy2, 0, 20);
     };
+
 
   };
 
