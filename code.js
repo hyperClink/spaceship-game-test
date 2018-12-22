@@ -1,7 +1,11 @@
-//canvas init
+//canvas init.
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
+//score init.
+var score = 0;
+var scoreMax = 0;
+var scoreOutput = document.getElementById('score');
 //ship start variables
 var yp = 100;
 var xp = 20;
@@ -11,12 +15,13 @@ var speed = 0;
 var spec1=false;
 var spec1u=true;
 var specTimer=0;
+var specTimerOut=document.getElementById('special');
 
 //bulletT1 start variables
 var xspeed = 0;
 var yspeed = 0;
 var BulletTimer=0;
-var BulletRate=4;
+var BulletRate=1;
 
 //control variables
 var up=false;
@@ -178,18 +183,29 @@ function draw() {
   ctx.drawImage(bg, 0, 0);
   ctx.drawImage(ship, xp, yp);
   requestAnimationFrame(draw);
-  specTimer++;
+
+  BulletRate=Math.max(1, 5-Math.ceil(score/100));
+
+//score output to div
+  scoreOutput.innerHTML='Score:' + score + ' Max Score:' + scoreMax +' (if it hits <0 - you lose(game restarts))';
+
+//lose (temp.)
+  if(score<0){
+    location.reload();
+  }
+
+  if(scoreMax<score){
+    scoreMax=score;
+  }
 
 //ship acceleration
 if (speed<2.2 && (up==true || down==true || left==true || right==true)) {speed += 0.2};
 if (up==false && down==false && left==false && right==false && speed>0) {speed =0};
 
 //ship keydown actions
-
   if (up == true && yp>0){
     yp -=5+speed;
-    yspeed = -(5+speed);
-  }
+    yspeed = -(5+speed);}
 
   if (down == true && yp+ship.height<canvas.height){
     yp +=5+speed;
@@ -212,17 +228,32 @@ if (up==false && down==false && left==false && right==false && speed>0) {speed =
 /*describe the bullet here
 
 offsets 2, speed, init.acceleration, acceleration rate, intitial scale 2,
-scale rate, timeScaleDecay, scale with time?, acceletation decay?, decay timer,
+t scale rate, timeaccelDecay, scale with time?, acceletation decay?, decay timer,
 spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knockback, type, side */
-        fireBullet(45+xp, 21+yp, 10, Math.random()*2, 0.1, 11, 11, 200, 10, true, true, 60, 0.1, 1, 1, 0.3, 0.3, 1, 1, 0.5, bullet1, 1);
+        fireBullet(45+xp, 21+yp, 10, Math.random()*2, 0.1, 11, 11, 1000, 1, false, false, 60, 0.1, 100, 100, 0.3, 0.3, 1, 1, 1.1, bullet1, 1);
     };
   };
 
+  if (xp<0){xp=0; xspeed = 0}
+  if (xp+ship.width>canvas.width){xp=canvas.width-ship.width; xspeed=0}
+  if (yp<0){yp=0; yspeed=0}
+  if (yp+ship.height>canvas.height){yp=canvas.height-ship.height; yspeed=0}
+
 //specials
+  //specials timer
+  specTimerOut.innerHTML=Math.round(specTimer/20)+  '% special attack gauge (press shift)';
+  if (specTimer<2000){
+    specTimer++;
+  };
+
+  if (specTimer>2000){
+    specTimer=2000;
+  };
+
   //spawn special
-  if (spec1 == true && spec1u == true && specTimer>=100){
-    for (var i = 0; i < 3; i++) {
-      fireBullet(45+xp, 21+yp, 25, 0, 0, 10, 15, 0, 10, false, false, 0, 4, -2.2, 0.3, 0, 0, 1, 200, 6, spec1img, 1);
+  if (spec1 == true && spec1u == true && specTimer>=2000){
+    for (var i = 0; i < 4; i++) {
+      fireBullet(0, 0, 0, 15+randomInt(0,8), -0.29, 10, 15, 0, 10, false, false, 0, 0, 0, -15, 0, 0, 1, 200, 6, spec1img, 1, 1);
     };
       spec1u = false;
       specTimer = 0;
@@ -236,20 +267,46 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
     };
 
 //remove enemies
-  for(var i=0; i<enemies.length; i++) {
+  for(var i=0; i<enemies.length && enemies.length != 'undefined' && enemies.length != 0; i++) {
         if(enemies[i].x+enemy1.width <0){
             enemies.splice(i--, 1);
+            score--;
         };
+        //enemy down
+        if (i >= 0) {
+          if (enemies[i].hp<=0){
+            switch (enemies[i].type) {
+              case enemy1:
+                  score++;
+                break;
+
+              case enemy2:
+                  score+=2;
+                break;
+
+              default:
+              break;
+
+            }
+            enemies.splice(i--, 1);
+
+            if (specTimer<2000){
+            specTimer+=Math.max(1, 100-Math.ceil(score/2));
+          };
+
+        };
+      };
     };
 
 //enemies-bullets collision
   for(var i=0; i<bullets.length && bullets.length != 'undefined' && bullets.length != 0; i++) {
     for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length != 0; n++) {
       if (i >= 0) {
-        if(bullets[i].x>enemies[n].x &&
-           bullets[i].x-enemy1.width<enemies[n].x &&
-           bullets[i].y>enemies[n].y &&
-           bullets[i].y<enemies[n].y+enemy1.height &&
+        //good bullets
+        if(bullets[i].x+bullets[i].scaleX>enemies[n].x &&
+           bullets[i].x<enemies[n].x+enemies[n].type.width &&
+           bullets[i].y+bullets[i].scaleY>enemies[n].y &&
+           bullets[i].y<enemies[n].y+enemies[n].type.height &&
            bullets[i].side==1)
            {
              enemies[n].hp-=bullets[i].damage;
@@ -264,19 +321,16 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
                 bullets.splice(i--, 1);
               };
 
-             //enemy down
-             if (enemies[n].hp<=0){
-               enemies.splice(n--, 1);
-             };
-
            };
            if (i >= 0){
+             //bad bullets
         if(bullets[i].x>xp &&
            bullets[i].x<xp+ship.width &&
            bullets[i].y>yp &&
            bullets[i].y<yp+ship.height &&
            bullets[i].side==0) {
              xp-=10;
+             score-=10;
 
              bullets[i].sturdiness--;
           if (bullets[i].sturdiness<=0) {
@@ -290,6 +344,19 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
 
     };
   };
+
+//ship collision
+for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length != 0; n++) {
+    if(xp+ship.width>enemies[n].x &&
+       xp<enemies[n].x+enemy1.width &&
+       yp+ship.width>enemies[n].y &&
+       yp<enemies[n].y+enemy1.height) {
+         xp-=enemies[n].speed+enemies[n].accel;
+         score--;
+         xp-=15;
+         enemies[n].hp--;
+     };
+   };
 
 //bullets logic
   for(var i=0; i<bullets.length; i++) {
@@ -309,7 +376,7 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
       if (bullets[i].timer > bullets[i].timerEnd) {
         bullets[i].scaleX -=bullets[i].xDecay;
         bullets[i].scaleY -=bullets[i].yDecay;
-        bullets[i].y += bullets[i].spread * bullets[i].flipCoin * Math.random();
+        bullets[i].y += bullets[i].spread * bullets[i].flipCoin;
           //decay acceleration
           if (bullets[i].doTimeAccel == true){
             bullets[i].accel -= Math.random() * bullets[i].timer / bullets[i].tAccelDecay;
@@ -365,14 +432,14 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
 
 //spawn enemies
     enemyTimer++;
-    if (enemyTimer%enemyRate==0) {
+    if (enemyTimer%Math.max(1, enemyRate-Math.ceil(score/10))==0) {
                 //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety
-      spawnEnemy(canvas.width, randomInt(0,512), 2, 1, Math.random()*2, 0.01, 0, enemy1, 0, 23);
+      spawnEnemy(canvas.width, randomInt(0,canvas.height), 3, 1, Math.random()*2, 0.01, 0, enemy1, 0, 23);
     };
 
-    if (enemyTimer%(enemyRate*randomInt(3,8))==0) {
+    if (enemyTimer%Math.max(1, (enemyRate*randomInt(3,8)-Math.ceil(score/4)))==0) {
                   //x, y, hp, speed, accelInit., accel, -knockback, type
-      spawnEnemy(canvas.width, randomInt(0,512), 1, 4, Math.random()*1.2, 0.08, -1, enemy2, 0, 20);
+      spawnEnemy(canvas.width, randomInt(0,canvas.height), 1, 4, Math.random()*1.2, 0.06*Math.random(), -1, enemy2, 0, 20);
     };
 
   };
