@@ -7,6 +7,10 @@ var yp = 100;
 var xp = 20;
 var speed = 0;
 
+//specials(?)
+var spec1=false;
+var spec1u=true;
+
 //bulletT1 start variables
 var xspeed = 0;
 var yspeed = 0;
@@ -24,9 +28,8 @@ var keydownkey='null';
 var keyupkey='null';
 
 //enemy variables
-var EnemyTimer = 0;
-var EnemyRate = 1;
-
+var enemyTimer = 0;
+var enemyRate = 20;
 
 //creating bullet array
 var bullets=[];
@@ -80,8 +83,12 @@ function keydownkey1(keyd) {
         shoot = true;
       break;
 
+      case 'Shift':
+        spec1 = true;
+      break;
+
       default:
-        console.log(keydownkey);
+        console.log(keyd.key);
       break;
     }
 }
@@ -122,6 +129,11 @@ function keyupkey1(keyu) {
         shoot = false;
       break;
 
+      case 'Shift':
+        spec1 = false;
+        spec1u = true;
+      break;
+
       default:
       break;
     }
@@ -130,19 +142,20 @@ function keyupkey1(keyu) {
 
 
   //sets up the bullet
-    fireBullet = function() {
-      BulletTimer++;
-      if (BulletTimer%BulletRate==0) {
-      bullets.push({x:xp+43, y:yp+23, accel:Math.random()*2, scale:0, timer:0, xspeed:xspeed/3, yspeed:yspeed/3, flipCoin:randomInt(-1 ,1)});
-        };
+    fireBullet = function(xOffset, yOffset, defSpeed,
+        accel, accelRate, scaleX, scaleY, tscr, tscd, doTimeScale,
+        doTimeAccel, timerEnd, spread, xdec, ydec, xso, yso, damage, hp, kb) {
+
+      bullets.push({x:xp+xOffset, y:yp+yOffset, defSpeed:defSpeed,
+      accel:accel, accelRate:accelRate, scaleX:scaleX, scaleY:scaleY, tScaleRate:tscr,
+      tAccelDecay:tscd, xDecay:xdec, yDecay:ydec, timer:0, timerEnd:timerEnd,
+      xspeed:xspeed*xso, yspeed:yspeed*yso, flipCoin:randomInt(-1 ,1),
+      doTimeScale:doTimeScale, spread:spread, damage:damage, sturdiness:hp, knockback:kb});
       };
 
   //adds enemies to the array
     spawnEnemy = function() {
-      EnemyTimer++;
-      if (EnemyTimer%EnemyRate==0) {
-      enemies.push({x:canvas.width, y:randomInt(0,512)});
-    };
+      enemies.push({x:canvas.width, y:randomInt(0,512), hp:7, accel: 0});
   };
 
   //random integer
@@ -158,41 +171,62 @@ function draw() {
   ctx.drawImage(bg, 0, 0);
   ctx.drawImage(ship, xp, yp);
   requestAnimationFrame(draw);
-  spawnEnemy();
 
 //ship acceleration
-if (speed<2 && (up==true || down==true || left==true || right==true)) {speed += 0.16};
+if (speed<2.2 && (up==true || down==true || left==true || right==true)) {speed += 0.2};
 if (up==false && down==false && left==false && right==false && speed>0) {speed =0};
 
 //ship keydown actions
 
   if (up == true && yp>0){
-    yp -=4+speed;
-    yspeed = -(4+speed);
+    yp -=5+speed;
+    yspeed = -(5+speed);
   }
 
   if (down == true && yp+ship.height<canvas.height){
-    yp +=4+speed;
-    yspeed = 4+speed;
+    yp +=5+speed;
+    yspeed = 5+speed;
   }
 
   if (left == true && xp>0){
     xp -=5+speed;
-    xspeed = -(4+speed);
+    xspeed = -(5+speed);
   }
 
-  if (right == true && xp+ship.width<d canvas.width){
+  if (right == true && xp+ship.width<canvas.width){
     xp +=5+speed;
-    xspeed = 4+speed;
+    xspeed = 5+speed;
   }
 
   if (shoot == true){
-        fireBullet();
+    BulletTimer++;
+    if (BulletTimer%BulletRate==0) {
+
+  if (spec1=true){
+    spec1u=false;
   }
 
-//remove rockets
+/*describe the bullet here
+
+offsets 2, speed, init.acceleration, acceleration rate, intitial scale 2,
+scale rate, timeScaleDecay, scale with time?, acceletation decay?, decay timer,
+spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knockback */
+
+        fireBullet(45, 21, 10, Math.random()*2, 0.1, 11, 11, 200, 10, true, true, 40, 0.1, 1, 1, 0.3, 0.3, 1, 1, 0.5);
+
+      };
+  };
+
+  if (spec1 == true && spec1u == true){
+    for (var i = 0; i < 3; i++) {
+      fireBullet(45, 21, 25, 0, 0, 20, 20, 0, 10, false, false, 0, 2, -2, 0.5, 0, 0, 1, 500, 5);
+    };
+      spec1u = false;
+  };
+
+//remove bullets
   for(var i=0; i<bullets.length; i++) {
-        if(bullets[i].x >canvas.width || bullets[i].scale/5+10<0) {
+        if(bullets[i].x >canvas.width || bullets[i].scaleX<0 || bullets[i].scaleY<0) {
             bullets.splice(i--, 1);
         };
     };
@@ -206,46 +240,71 @@ if (up==false && down==false && left==false && right==false && speed>0) {speed =
 
 //enemies-bullets collision
   for(var i=0; i<bullets.length && bullets.length != 'undefined' && bullets.length != 0; i++) {
-    for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length != 0; n++)
+    for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length != 0; n++) {
       if (i >= 0) {
         if(bullets[i].x>enemies[n].x &&
            bullets[i].x-enemy1.width<enemies[n].x &&
            bullets[i].y>enemies[n].y &&
            bullets[i].y<enemies[n].y+enemy1.height){
-             enemies.splice(n--, 1);
-             bullets.splice(i--, 1);
+
+             enemies[n].hp-=bullets[i].damage;
+             enemies[n].accel-=bullets[i].knockback;
+             bullets[i].sturdiness--;
+
+              if (bullets[i].sturdiness<=0) {
+                bullets.splice(i--, 1);
+              };
+
+             //enemy down
+             if (enemies[n].hp<=0){
+               enemies.splice(n--, 1);
+             };
+
            };
         };
     };
+  };
 
 //bullets logic
   for(var i=0; i<bullets.length; i++) {
-      ctx.drawImage(bullet, bullets[i].x, bullets[i].y, bullets[i].scale/5+10, bullets[i].scale/5+10);
-      bullets[i].x +=8+bullets[i].accel+bullets[i].xspeed;
-      bullets[i].y +=(bullets[i].accel/10)*bullets[i].flipCoin;
-      bullets[i].accel +=0.1;
+      ctx.drawImage(bullet, bullets[i].x, bullets[i].y, bullets[i].scaleX, bullets[i].scaleY);
+      bullets[i].x +=bullets[i].defSpeed + bullets[i].accel + bullets[i].xspeed;
+      bullets[i].y +=bullets[i].spread * bullets[i].flipCoin * bullets[i].accel + bullets[i].yspeed;
+      bullets[i].accel += bullets[i].accelRate;
       bullets[i].timer++;
 
       //size-time modification
-      if (bullets[i].timer < 32) {
-        bullets[i].scale = -bullets[i].timer/50;
+      if (bullets[i].timer < bullets[i].timerEnd && bullets[i].doTimeScale==true) {
+        bullets[i].scaleX = bullets[i].scaleX - bullets[i].timer/bullets[i].tScaleRate;
+        bullets[i].scaleY = bullets[i].scaleY - bullets[i].timer/bullets[i].tScaleRate;
       }
 
       //bullet decay
-      if (bullets[i].timer > 32-randomInt(0, 5)) {
-        bullets[i].y += 6*bullets[i].flipCoin*Math.random();
-        bullets[i].scale -=5;
-        bullets[i].accel -=Math.random()*bullets[i].timer/10;
+      if (bullets[i].timer > bullets[i].timerEnd) {
+        bullets[i].scaleX -=bullets[i].xDecay;
+        bullets[i].scaleY -=bullets[i].yDecay;
+        bullets[i].y += bullets[i].spread * bullets[i].flipCoin * Math.random();
+          //decay acceleration
+          if (bullets[i].doTimeAccel == true){
+            bullets[i].accel -= Math.random() * bullets[i].timer / bullets[i].tAccelDecay;
+          };
+
       };
 
   };
 
-  //draw enemies
+//enemy draw
     for(var i=0; i<enemies.length; i++) {
       ctx.drawImage(enemy1, enemies[i].x, enemies[i].y);
-      enemies[i].x-=1;
+      enemies[i].accel+=0.01;
+      enemies[i].x-=1+enemies[i].accel;
     };
 
+//spawn enemies
+    enemyTimer++;
+    if (enemyTimer%enemyRate==0) {
+      spawnEnemy();
+    };
 
   };
 
