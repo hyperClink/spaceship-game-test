@@ -519,7 +519,7 @@ if (1%randomInt(1, 14000)==0){
 
 //enemy shoots (scary part)
   n=randomInt(1, enemies.length);
-  //enemy2 bullets
+  //enemy3 bullets
   for (var i = 0; i < enemies.length && enemies.length != 'undefined' && enemies.length != 0 && enemies[n-1].type !== enemy3; i++) {
     if (enemies[i].type===enemy3){
       if (enemyTimer%enemies[i].bRate==0) {
@@ -538,7 +538,7 @@ if (1%randomInt(1, 14000)==0){
   };
 
   //enemy2 bullets
-  for (var i = 0; i < enemies.length && enemies.length != 'undefined' && enemies.length != 0 && enemies[n-1].type !== enemy2; i++) {
+  for (var i = 0; i < enemies.length && enemies.length != 'undefined' && enemies.length != 0; i++) {
     if (enemies[i].type===enemy2){
       if (enemyTimer%enemies[i].bRate==0) {
   /*describe the bullet here
