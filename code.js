@@ -587,7 +587,7 @@ if (1%randomInt(1, 14000)==0){
     };
 
     //enemy 3
-    if (enemyTimer%Math.max(3000, enemyRate*30-Math.ceil(score/50))==0 && score>100) {
+    if (enemyTimer%Math.max(250, enemyRate*100-Math.ceil(score/2))==0 && score>100) {
                 //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
       spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy3.height), 200, 0.8, 0, 0, 1000, enemy3, 0, 46, 1);
     };
