@@ -15,6 +15,8 @@ var speed = 0;
 //specials(?)
 var spec1=false;
 var spec1u=true;
+var specB=false;
+
 var specTimer=0;
 var specTimerOut=document.getElementById('special');
 
@@ -36,13 +38,15 @@ var keyupkey='null';
 
 //enemy variables
 var enemyTimer = 0;
-var enemyRate = 40;
+var enemyRate = 50;
 
 //upgrades
 var bulletUp = 0;
 var bulletUp2 = 0;
 var spMaxU = 2000;
 var spRateU = 1;
+var sBulletType = 0;
+
 var upgradesOut = document.getElementById('upgrades');
 
 //creating arrays
@@ -57,9 +61,11 @@ var bckg = [{x:0, y:0, spawned:false}];
 var ship = new Image();
 var bg = new Image();
 var bullet1 = new Image();
+var bullet2 = new Image();
 var enemy1 = new Image();
 var enemy2 = new Image();
 var enemy3 = new Image();
+var enemy4 = new Image();
 var spec1img = new Image();
 var eBullet = new Image();
 var bUp = new Image();
@@ -71,9 +77,11 @@ var spRate = new Image();
 ship.src='img/ship.png';
 bg.src='img/bg2.jpg';
 bullet1.src='img/bullet_custom.png';
+bullet2.src='img/bullet2.png';
 enemy1.src='img/enemy.png';
 enemy2.src='img/enemy2.png';
 enemy3.src='img/enemy3.png';
+enemy4.src='img/enemy4.png';
 spec1img.src='img/special.png';
 eBullet.src='img/enemyBullet.png';
 bUp.src='img/bulletUp.png';
@@ -117,8 +125,13 @@ function keydownkey1(keyd) {
         shoot = true;
       break;
 
-      case 'Shift':
+      case 'Q':
+      case 'q':
         spec1 = true;
+      break;
+
+      case 'Shift':
+        specB = true;
       break;
 
       default:
@@ -163,9 +176,14 @@ function keyupkey1(keyu) {
         shoot = false;
       break;
 
-      case 'Shift':
+      case 'Q':
+      case 'q':
         spec1 = false;
         spec1u = true;
+      break;
+
+      case 'Shift':
+        specB = false;
       break;
 
       default:
@@ -188,8 +206,8 @@ function keyupkey1(keyu) {
       };
 
   //adds enemies to the array
-    spawnEnemy = function(x, y, hp, speed, accelInit, accel, KBAbility, type, bx, by, bRate) {
-      enemies.push({x:x, y:y, hp:hp, speed:speed, accel:accelInit, accelI:accel, kbAbility:KBAbility, type:type, bulleyX:bx, bulletY:by, bRate:bRate});
+    spawnEnemy = function(x, y, hp, speed, accelInit, accel, KBAbility, type, bx, by, bRate, score) {
+      enemies.push({x:x, y:y, hp:hp, speed:speed, accel:accelInit, accelI:accel, kbAbility:KBAbility, type:type, bulleyX:bx, bulletY:by, bRate:bRate, score:score});
     };
 
   //adds bckg
@@ -225,18 +243,19 @@ function draw() {
       bckg.splice(i--, 1)
     }
   }
+//end
 
   ctx.drawImage(ship, xp, yp);
+
   requestAnimationFrame(draw);
 
-  BulletRate=Math.max(1, 6-bulletUp);
-//end
+  BulletRate=Math.max(2, 6-bulletUp);
 
 //score output to div
   scoreOutput.innerHTML='Score:' + Math.round(score) + ' Max Score:' + scoreMax;
 
 //upgrades output to div
-  upgradesOut.innerHTML='Bullet Rate:' + Math.min(5, bulletUp) + '(5 max)||||Bullet Multiplier: x' + (bulletUp2+1) + '||||SP MAX: ' + spMaxU/20+ '%|||| SP Charge Rate:' + spRateU;
+  upgradesOut.innerHTML='Bullet Rate:' + Math.min(5, bulletUp) + '(4 max, >4 - upgrade)||||Bullet Multiplier: x' + (bulletUp2+1) + '||||Bullet Level: ' + sBulletType + '||||SP MAX: ' + spMaxU/20+ '%|||| SP Charge Rate:' + spRateU;
 
 //lose (temp.)
   if(score<0){
@@ -281,10 +300,17 @@ offsets 2, speed, init.acceleration, acceleration rate, intitial scale 2,
 t scale rate, timeaccelDecay, scale with time?, acceletation decay?, decay timer,
 spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knockback, type, side */
       for (var i = 0; i < bulletUp2+1; i++) {
-        fireBullet(45+xp, 21+yp, 10, Math.random()*2, 0.1, 11, 11, 1000, 1, false, false, 60, 0.1, 100, 100, 0.3, 0.3, 1, 1, 1.1, bullet1, 1);
+        if (sBulletType == 0) {
+          fireBullet(45+xp, 21+yp, 10, Math.random()*2, 0.1, 11, 11, 1000, 1, false, false, 60, 0.1, 100, 100, 0.3, 0.3, 1, 1, 0.3, bullet1, 1);
+        };
+
+        if (sBulletType == 1) {
+          fireBullet(45+xp, 21+yp, 10, Math.random()*2, 0.1, 11, 11, 1000, 1, false, false, 60, 0.05, 100, 100, 0.3, 0.3, 1, 3, 0.6, bullet2, 1);
+        };
+
+      };
     };
   };
-};
 
   if (xp<=0){xp=0; xspeed = 0}
   if (xp+ship.width>=canvas.width){xp=canvas.width-ship.width; xspeed=0}
@@ -304,13 +330,20 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
     specTimer=spMaxU;
   };
 
-  //spawn special
+  //spawn special1
   if (spec1 == true && spec1u == true && specTimer>=2000){
     for (var i = 0; i < 4; i++) {
-      fireBullet(0, 0, 0, 15+randomInt(0,8), -0.29, 10, 15, 0, 10, false, false, 0, 0, 0, -15, 0, 0, 100, 5000, 0, spec1img, 1);
+      fireBullet(0, 0, 0, 15+randomInt(0,8), -0.29, 10, 15, 0, 10, false, false, 0, 0, 0, -15, 0, 0, 2, 5000, 0, spec1img, 1);
     };
       spec1u = false;
       specTimer -= 2000;
+  };
+
+  //spawn special bullet
+  if (specB == true && specTimer>=300){
+      fireBullet(45+xp, 22+yp, 0, 0, 0, 10, 15, 0, 10, false, false, 0, 0, -100, 1.5, 0, 0, 2, 5000, 0, spec1img, 1);
+      spec1u = false;
+      specTimer -= 300;
   };
 //end
 
@@ -333,15 +366,15 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
 
             switch (enemies[i].type) {
               case enemy1:
-                  score++;
+                  score+=enemies[i].score;
                 break;
 
               case enemy2:
-                  score+=2;
+                  score+=enemies[i].score;
                 break;
 
                 case enemy3:
-                    score+=20;
+                    score+=enemies[i].score;
                   break;
 
               default:
@@ -351,7 +384,7 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
             enemies.splice(i--, 1);
 
             if (specTimer<+spMaxU){
-            specTimer+=Math.max(2*spRateU, 100-Math.ceil(score/3)*spRateU);
+            specTimer+=Math.max(2*spRateU, 100-Math.ceil(score/2.5)*spRateU);
           };
 
         };
@@ -459,6 +492,12 @@ for(var n=0; n<upgrades.length && up.length != 'undefined' && upgrades.length !=
         upgrades[i].x-=6;
       };
 
+//upgrade bullets
+  if (bulletUp > 4 && sBulletType<1){
+    bulletUp = 0;
+    sBulletType++;
+  }
+
 //spawn upgrades
 //bullet 1
   if (1%randomInt(1, 4500)==0){
@@ -519,8 +558,25 @@ if (1%randomInt(1, 14000)==0){
 
 //enemy shoots (scary part)
   n=randomInt(1, enemies.length);
+  //enemy4 bullets
+  if (enemies.length != 'undefined' && enemies.length != 0 && enemies[n-1].type === enemy4) {
+    if (enemyTimer%enemies[n-1].bRate==0) {
+      /*describe the bullet here
+
+  offsets 2, speed, init.acceleration, acceleration rate, intitial scale 2,
+  scale rate, timeScaleDecay, scale with time?, acceletation decay?, decay timer,
+  spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knockback, type, side */
+      fireBullet(
+    enemies[n-1].x, enemies[n-1].y+enemies[n-1].bulletY, -10,
+    -Math.random(), -0.07, 10, 10, 100, 10,
+    false, false, 30, 0, 0.01, 0.01, 0, 0, 8, 1,
+    20, eBullet, 0);
+
+    };
+  };
+
   //enemy3 bullets
-  for (var i = 0; i < enemies.length && enemies.length != 'undefined' && enemies.length != 0 && enemies[n-1].type !== enemy3; i++) {
+  for (var i = 0; i < enemies.length && enemies.length != 'undefined' && enemies.length != 0; i++) {
     if (enemies[i].type===enemy3){
       if (enemyTimer%enemies[i].bRate==0) {
   /*describe the bullet here
@@ -531,7 +587,7 @@ if (1%randomInt(1, 14000)==0){
     fireBullet(
     enemies[i].x, enemies[i].y+enemies[i].bulletY, -13,
     0, 0, 8, 8, 50, 40,
-    false, false, 0, 0, -3, -0.1, 0, 0, 0.1, 1000,
+    false, false, 0, 0, -3, -0.1, 0, 0, 0.06, 1000,
     0.1, eBullet, 0);
     };
     };
@@ -549,7 +605,7 @@ if (1%randomInt(1, 14000)==0){
     fireBullet(
     enemies[i].x, enemies[i].y+enemies[i].bulletY, -13,
     -Math.random()*2, -0.1, 8, 8, 50, 40,
-    true, true, 3, 3, 5, 5, 0, 0, 2, 4,
+    true, true, 3, 3, 5, 5, 0, 0, 0.5, 4,
     40, eBullet, 0);
     };
     };
@@ -566,7 +622,7 @@ if (1%randomInt(1, 14000)==0){
       fireBullet(
     enemies[n-1].x, enemies[n-1].y+enemies[n-1].bulletY, -10,
     -Math.random(), -0.07, 10, 10, 100, 10,
-    false, false, 30, 0, 0.01, 0.01, 0, 0, 8, 1,
+    false, false, 30, 0, 0.01, 0.01, 0, 0, 4, 1,
     20, eBullet, 0);
 
     };
@@ -575,21 +631,27 @@ if (1%randomInt(1, 14000)==0){
 //spawn enemies
     enemyTimer++;
     //enemy1
-    if (enemyTimer%Math.max(1, enemyRate-Math.ceil(score/50))==0) {
+    if (enemyTimer%Math.max(1, enemyRate-Math.ceil(score/25))==0 && score<200) {
                 //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
-      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy1.height), 3, 1, Math.random()*2, 0.01, 0, enemy1, 0, 23, 30);
+      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy1.height), 6, 3, Math.random()*2, 0.01, 0, enemy1, 0, 23, 30, 1);
     };
 
     //enemy 2
-    if (enemyTimer%Math.max(2, (enemyRate*randomInt(2,10)-Math.ceil(score/25)))==0) {
+    if (enemyTimer%Math.max(2, (enemyRate*randomInt(2,10)-Math.ceil(score/18)))==0) {
                   //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
-      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy2.height), 1, 4, Math.random()*1.2, 0.06*Math.random(), -1, enemy2, 0, 20, 2);
+      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy2.height), 4, 7, Math.random()*1.2, 0.06*Math.random(), -1, enemy2, 0, 20, 2, 2);
     };
 
     //enemy 3
-    if (enemyTimer%Math.max(250, enemyRate*100-Math.ceil(score/2))==0 && score>100) {
+    if (enemyTimer%Math.max(235, enemyRate*30-Math.ceil(score/2))==0 && score>100) {
                 //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
-      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy3.height), 200, 0.8, 0, 0, 1000, enemy3, 0, 46, 1);
+      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy3.height), 200, 0.8, 0, 0, 1000, enemy3, 0, 46, 1, 25);
+    };
+
+    //enemy4
+    if (enemyTimer%Math.max(1, enemyRate-Math.ceil(score/22))==0 && score>180) {
+                //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
+      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy1.height), 8, 7, Math.random()*3, 0.01, 0.4, enemy4, 0, 23, 26, 2);
     };
 //end
 

@@ -1,0 +1,7 @@
+bullets:
+offsets 2, speed, init.acceleration, acceleration rate, intitial scale 2,
+t scale rate, timeaccelDecay, scale with time?, acceletation decay?, decay timer,
+spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knockback, type, side
+
+enemies:
+//x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
