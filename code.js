@@ -1,4 +1,4 @@
-//canvas init.
+//canvas init. (we dont do var **** = ***, here)
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
@@ -66,6 +66,9 @@ var enemy1 = new Image();
 var enemy2 = new Image();
 var enemy3 = new Image();
 var enemy4 = new Image();
+var enemy5 = new Image();
+var enemy6 = new Image();
+var enemymini1 = new Image();
 var spec1img = new Image();
 var eBullet = new Image();
 var bUp = new Image();
@@ -74,14 +77,17 @@ var spMax = new Image();
 var spRate = new Image();
 
 //sources of images
-ship.src='img/ship.png';
+ship.src='img/ship-v2-outlineshade.png';
 bg.src='img/bg2.jpg';
 bullet1.src='img/bullet_custom.png';
 bullet2.src='img/bullet2.png';
 enemy1.src='img/enemy.png';
-enemy2.src='img/enemy2.png';
+enemy2.src='img/enemy2-v2.png';
 enemy3.src='img/enemy3.png';
 enemy4.src='img/enemy4.png';
+enemy5.src='img/enemy5-v2-shaded.png';
+enemy6.src='img/enemy6.png';
+enemymini1.src='img/enemymini1.png'
 spec1img.src='img/special.png';
 eBullet.src='img/enemyBullet.png';
 bUp.src='img/bulletUp.png';
@@ -557,7 +563,21 @@ if (1%randomInt(1, 14000)==0){
   };
 
 //enemy shoots (scary part)
+  //n is for random shooting intervals, remove it from the if to get a const. firerate
   n=randomInt(1, enemies.length);
+
+  //enemy5 ""bullets""
+  for (var i = 0; i < enemies.length && enemies.length != 'undefined' && enemies.length != 0; i++) {
+    if (enemies[i].type===enemy5){
+      if (enemyTimer%enemies[i].bRate==0) {
+  /*describe the """"bullet"""" here
+
+  x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate, score*/
+    spawnEnemy(enemies[i].x, enemies[i].y+20, 1, 0.8, 0.1, 0, 1000, enemymini1, 0, 0, 10, 1);
+    };
+    };
+  };
+
   //enemy4 bullets
   if (enemies.length != 'undefined' && enemies.length != 0 && enemies[n-1].type === enemy4) {
     if (enemyTimer%enemies[n-1].bRate==0) {
@@ -632,26 +652,32 @@ if (1%randomInt(1, 14000)==0){
     enemyTimer++;
     //enemy1
     if (enemyTimer%Math.max(1, enemyRate-Math.ceil(score/25))==0 && score<200) {
-                //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
+                //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate, score
       spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy1.height), 6, 3, Math.random()*2, 0.01, 0, enemy1, 0, 23, 30, 1);
     };
 
     //enemy 2
     if (enemyTimer%Math.max(2, (enemyRate*randomInt(2,10)-Math.ceil(score/18)))==0) {
-                  //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
+                  //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate, score
       spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy2.height), 4, 7, Math.random()*1.2, 0.06*Math.random(), -1, enemy2, 0, 20, 2, 2);
     };
 
     //enemy 3
     if (enemyTimer%Math.max(235, enemyRate*30-Math.ceil(score/2))==0 && score>100) {
-                //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
+                //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate, score
       spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy3.height), 200, 0.8, 0, 0, 1000, enemy3, 0, 46, 1, 25);
     };
 
     //enemy4
     if (enemyTimer%Math.max(1, enemyRate-Math.ceil(score/22))==0 && score>180) {
-                //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
-      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy1.height), 8, 7, Math.random()*3, 0.01, 0.4, enemy4, 0, 23, 26, 2);
+                //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate, score
+      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy4.height), 8, 7, Math.random()*3, 0.01, 0.4, enemy4, 0, 23, 26, 2);
+    };
+
+    //enemy5
+    if (enemyTimer%Math.max(2500, enemyRate-Math.ceil(score/50))==0) {
+                //x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate, score
+      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy5.height), 10, 0.5, 0, 0, 0.3, enemy5, 0, 23, 30, 2);
     };
 //end
 
