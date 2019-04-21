@@ -1,4 +1,5 @@
 # spaceship-game-test
 wasd, arrows to contol   
-shift - special   
+shift - special1
+q - special2
 wip   
