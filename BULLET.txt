@@ -1,7 +1,20 @@
 bullets:
-offsets 2, speed, init.acceleration, acceleration rate, intitial scale 2,
+offsets 2, X and Y(speed, init.acceleration, acceleration rate,) intitial scale 2,
 t scale rate, timeaccelDecay, scale with time?, acceletation decay?, decay timer,
 spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knockback, type, side
 
 enemies:
-//x, y, hp, speed, accelInit., accel, -knockback, type, bulletx, bullety, bullet rate
+      //x, y, hp, speed x, speed y, accelInit.x, accelx, accelInit.y, accely,
+	-knockback, type, bulletx, bullety, bullet rate, score, ft
+
+
+fireBullet = function(xOffset, yOffset, defSpeed,
+        accel, accelRate, defSpeedY, accelY, accelrateY, scaleX, scaleY, tscr, tscd, doTimeScale,
+        doTimeAccel, timerEnd, spread, xdec, ydec, xso, yso, damage, hp, kb, type, side) {
+
+      bullets.push({x:xOffset, y:yOffset, defSpeed:defSpeed,
+      accel:accel, accelRate:accelRate, scaleX:scaleX, scaleY:scaleY, tScaleRate:tscr,
+      tAccelDecay:tscd, xDecay:xdec, yDecay:ydec, timer:0, timerEnd:timerEnd,
+      xspeed:xspeed*xso, yspeed:yspeed*yso, flipCoin:coinflip(),
+      doTimeScale:doTimeScale, spread:spread, damage:damage, sturdiness:hp, knockback:kb, type:type, side:side});
+      };
