@@ -77,6 +77,11 @@ var bUp = new Image();
 var bUp2 = new Image();
 var spMax = new Image();
 var spRate = new Image();
+var particle1 = new Image();
+var particle2 = new Image();
+var particle3 = new Image();
+var particle4 = new Image();
+var particle5 = new Image();
 
 //sources of images
 ship.src='img/ship-v2-outlineshade.png';
@@ -96,6 +101,11 @@ bUp.src='img/bulletUp.png';
 bUp2.src='img/bulletUp2.png';
 spMax.src='img/spMax.png';
 spRate.src='img/spRate.png';
+particle1.src="img/particle1.png";
+particle2.src="img/particle2.png";
+particle3.src="img/particle3-1.png";
+particle4.src="img/particle4-1.png";
+particle5.src="img/particle5.png";
 
 //key check
 document.addEventListener("keydown", keydownkey1);
@@ -370,7 +380,7 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
 
 //remove enemies
   for(var i=0; i<enemies.length && enemies.length != 'undefined' && enemies.length != 0; i++) {
-        if(enemies[i].x+enemies[i].type.width < 0 || enemies[i].x > canvas.width+10 || enemies[i].y+enemies[i].type.height > canvas.height || enemies[i].y < 0){
+        if(enemies[i].x+enemies[i].type.width < 0 || enemies[i].x > canvas.width+10 || enemies[i].y > canvas.height || enemies[i].y+enemies[i].type.height < 0){
             enemies.splice(i--, 1);
         };
         //enemy down
@@ -403,11 +413,12 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
              enemies[n].hp-=bullets[i].damage;
             // console.log(enemies[n].hp);
 
-            for (var k = 0; k < 10; k++) {
+            //particle ""system""
+            for (var k = 0; k < 2; k++) {
               fireBullet(bullets[i].x, bullets[i].y, 0, randomInt(-5,5)*Math.random(), randomInt(-0.1,0.1)*Math.random(),
-                0, randomInt(-8,-6)*Math.random(), 0.5, 5, 5, 0, 10,
-                false, false, 0, 0, 0.1, 0.1,
-                0, 0, 0, 1, 0, bullet1, 100);
+                0, randomInt(-8,-6)*Math.random(), 0.5, 3, 3, 1, 10,
+                false, false, 10, 0, 0.5, 0.5,
+                0, 0, 0, 1, 0, particle1, 100);
               };
 
 
@@ -431,6 +442,13 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
            bullets[i].side==0) {
              xp-=bullets[i].knockback;
              score-=bullets[i].damage;
+
+             for (var k = 0; k < 2; k++) {
+               fireBullet(bullets[i].x, bullets[i].y, 0, randomInt(-8,8)*Math.random(), randomInt(-0.1,0.1)*Math.random(),
+                0, randomInt(-8,-6)*Math.random(), 0.5, 4, 4, 1, 10,
+                false, false, 10, 0, 0.5, 0.5,
+                0, 0, 0, 1, 0, particle5, 100);
+              };
 
              bullets[i].sturdiness--;
           if (bullets[i].sturdiness<=0) {
@@ -563,14 +581,19 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
       enemies[i].accelYinit+=enemies[i].accelY;
       enemies[i].y-=enemies[i].speedy+enemies[i].accelYinit;
       enemies[i].x-=enemies[i].speedx+enemies[i].accelXinit;
-      if (enemies[i].followtype==1){
+      if (enemies[i].followtype==1 || enemies[i].followtype==2){
         if (enemies[i].y<yp){
           enemies[i].speedy-=0.1;
-        };
+        }else
 
         if (enemies[i].y>yp+ship.height){
           enemies[i].speedy+=0.1;
+        }else
+
+        if (enemies[i].followtype==2){
+          enemies[i].speedy=enemies[i].speedy/3;
         };
+
       };
   };
 
@@ -732,9 +755,9 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
     };
 
     //enemy6
-    if (enemyTimer%Math.max(300, enemyRate*60-Math.ceil(score/2))==0 && score>285) {
+    if (enemyTimer%Math.max(300, enemyRate*60-Math.ceil(score/2))==0 && score>260) {
       //x, y, hp, speed x, speed y, accelInit.x, accelx, accelInit.y, accely, -knockback, type, bulletx, bullety, bullet rate, score, ft
-      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy5.height), 12, 1, 11, 0, 0.2, 0, 0, Math.random()*coinflip(), enemy6, 0, 20, 1, 4, 0);
+      spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy6.height), 12, 1, 0, 0, 0.1, 0, 0, 1, enemy6, 0, 20, 1, 4, 2);
     };
 //end
 
