@@ -13,6 +13,10 @@ var xp = 20;
 var speed = 0;
 var speedacc = 0;
 
+//particles
+var nframe = 0;
+var animnframe = null;
+
 //specials(?)
 var spec1=false;
 var spec1u=true;
@@ -80,13 +84,15 @@ var spMax = new Image();
 var spRate = new Image();
 var particle1 = new Image();
 var particle2 = new Image();
-var particle3 = new Image();
+var particle3_1 = new Image();
+var particle3_2 = new Image();
+var particle3_3 = new Image();
 var particle4 = new Image();
 var particle5 = new Image();
 var particle6 = new Image();
 
 //sources of images
-ship.src='img/ship-v2-outlineshade.png';
+ship.src='img/ship.png';
 bg.src='img/bg2.jpg';
 bullet1.src='img/bullet_custom.png';
 bullet2.src='img/bullet2.png';
@@ -106,7 +112,9 @@ spMax.src='img/spMax.png';
 spRate.src='img/spRate.png';
 particle1.src="img/particle1.png";
 particle2.src="img/particle2.png";
-particle3.src="img/particle3-1.png";
+particle3_1.src="img/particle3-1.png";
+particle3_2.src="img/particle3-2.png";
+particle3_3.src="img/particle3-3.png";
 particle4.src="img/particle4-1.png";
 particle5.src="img/particle5.png";
 particle6.src="img/particle6.png";
@@ -325,15 +333,27 @@ speedacc = 5+speed;
   //end
 
   //ship particle
+  nframe = randomInt(1, 3);
+  switch (nframe) {
+    case 1:
+    animnframe = particle3_1;
+      break;
+
+    case 2:
+    animnframe = particle3_2;
+      break;
+
+    case 3:
+    animnframe = particle3_3;
+      break;
+  };
+
   for (var k = 0; k < 1; k++) {
     fireBullet(xp, randomInt(yp+5, yp+ship.height), 0, 0, -1,
       0, randomInt(-3, 3)*Math.random(), 0, 4, 4, 1, 10,
       false, false, 5, 0, 0.3, 0.3,
-      0, 0, 0, 1, 0, particle3, 100);
+      0, 0, 0, 1, 0, animnframe, 100);
     };
-
-    nframe = randomInt(1, 3);
-    particle3.src="img/particle3-" + nframe + ".png";
 
 //ship shoot
   if (shoot == true){
@@ -384,10 +404,10 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
   };
 
   //spawn special bullet
-  if (specB == true && specTimer>=0){
+  if (specB == true && specTimer>=300){
       fireBullet(50+xp, 18+yp, 50, 0, 0, 0, 0, 0, 10, 15, 0, 10, false, false, 0, 0, -100, 1, 0, 0, 1.5, 5000, 0, spec1img2, 1);
       spec1u = false;
-      specTimer += 300;
+      specTimer -= 300;
   };
 //end
 
@@ -498,12 +518,12 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
            };
            if (i >= 0){
                                 //ctx.fillStyle = "#FF0000";
-                                //ctx.fillRect(xp+30, yp+14, 20, 14);
+                                //ctx.fillRect(xp+30, yp+13, 20, 14);
              //bad bullets
         if(bullets[i].x>xp+30 &&
            bullets[i].x<xp+50 &&
-           bullets[i].y>yp+14 &&
-           bullets[i].y<yp+28 &&
+           bullets[i].y>yp+13 &&
+           bullets[i].y<yp+27 &&
            bullets[i].side==0) {
              xp-=bullets[i].knockback;
              score-=bullets[i].damage;
@@ -532,8 +552,8 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
   for(var n=0; n<enemies.length && enemies.length != 'undefined' && enemies.length != 0; n++) {
     if(xp+50>enemies[n].x &&
        xp+30<enemies[n].x+enemies[n].type.width &&
-       yp+28>enemies[n].y &&
-       yp+14<enemies[n].y+enemies[n].type.height) {
+       yp+27>enemies[n].y &&
+       yp+13<enemies[n].y+enemies[n].type.height) {
          xp-=enemies[n].speedx+enemies[n].accelXinit;
          score-=2;
          xp-=15;
