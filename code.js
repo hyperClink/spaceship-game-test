@@ -265,13 +265,22 @@ function keyupkey1(keyu) {
      return Math.round(Math.random()) * 2 - 1
    };
 
-   laserCleanup = function(i){
-
+  laserCleanup = function(i){
+    if (bullets.length != 'undefined' || bullets.length != 0){
       var h = 0;
-      while (bullets[h].id != enemies[i].id) {
-        h++;
+      var flag = false;
+      while (flag == false) {
+        if (bullets[h].id != enemies[i].id){
+          h++;
+        }else{
+          flag = true;
+        };
+        if (bullets.length == 'undefined' || bullets.length == 0 || h > bullets.length){
+          flag = true;
+        };
       };
       bullets.splice(h--, 1);
+    };
       enemies.splice(i--, 1);
     };
 
@@ -548,12 +557,10 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
              xp-=bullets[i].knockback;
              score-=bullets[i].damage;
 
-             for (var k = 0; k < 2; k++) {
                fireBullet(xp+ship.width, bullets[i].y+(bullets[i].scaleY/2), 0, randomInt(-8,8)*Math.random(), randomInt(-0.1,0.1)*Math.random(),
                 0, randomInt(-8,-6)*Math.random(), 0.5, 4, 4, 1, 10,
                 false, false, 10, 0, 0.5, 0.5,
                 0, 0, 0, 1, 0, particle5, 100, 0);
-              };
 
              bullets[i].sturdiness--;
           if (bullets[i].sturdiness<=0) {
@@ -663,8 +670,27 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
 //bullet logic
   for(var i=0; i<bullets.length; i++) {
       ctx.drawImage(bullets[i].type, bullets[i].x, bullets[i].y, bullets[i].scaleX, bullets[i].scaleY);
-      bullets[i].x +=bullets[i].defSpeed + bullets[i].accel + bullets[i].xspeed;
-      bullets[i].y += bullets[i].spread * bullets[i].flipCoin * Math.random() + bullets[i].yspeed + bullets[i].defSpeedY + bullets[i].accelY;
+
+      if (bullets[i].type == eLaser){
+        var h = 0;
+        var flag = false;
+        while (flag == false){
+          if (bullets[i].id != enemies[h].id) {
+            h++;
+          }else{
+            flag = true;
+          };
+          if (enemies.length == 'undefined' || enemies.length == 0 || h > bullets.length){
+            flag = true;
+          };
+        };
+        bullets[i].y = enemies[h].y+enemies[h].bulletY-(bullets[i].scaleY/2);
+        bullets[i].x = enemies[h].x-bullets[i].scaleX;
+      }else{
+
+        bullets[i].x +=bullets[i].defSpeed + bullets[i].accel + bullets[i].xspeed;
+        bullets[i].y += bullets[i].spread * bullets[i].flipCoin * Math.random() + bullets[i].yspeed + bullets[i].defSpeedY + bullets[i].accelY;
+      };
       bullets[i].accel += bullets[i].accelRate;
       bullets[i].accelY += bullets[i].accelRateY;
       bullets[i].timer++;
@@ -675,14 +701,7 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
         bullets[i].x = bullets[i].x + xspeed;
       };
 
-      if (bullets[i].type == eLaser){
-        var h = 0;
-        while (bullets[i].id != enemies[h].id) {
-          h++;
-        };
-        bullets[i].y = enemies[h].y+enemies[h].bulletY-(bullets[i].scaleY/2);
-        bullets[i].x = enemies[h].x-bullets[i].scaleX;
-      };
+
 
       //size-time modification
       if (bullets[i].timer < bullets[i].timerEnd && bullets[i].doTimeScale==true) {
