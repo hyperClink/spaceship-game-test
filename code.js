@@ -269,15 +269,8 @@ function keyupkey1(keyu) {
     if (bullets.length != 'undefined' || bullets.length != 0){
       var h = 0;
       var flag = false;
-      while (flag == false) {
-        if (bullets[h].id != enemies[i].id){
-          h++;
-        }else{
-          flag = true;
-        };
-        if (bullets.length == 'undefined' || bullets.length == 0 || h > bullets.length){
-          flag = true;
-        };
+      while (bullets[h].id != enemies[i].id){
+        h++;
       };
       bullets.splice(h--, 1);
     };
@@ -439,15 +432,19 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
 //collisions--
 //remove bullets
   for(var i=0; i<bullets.length; i++) {
-        if(bullets[i].x >canvas.width || bullets[i].x+bullets[i].scaleX <0 || bullets[i].scaleX<0 || bullets[i].scaleY<0) {
-            bullets.splice(i--, 1);
+        if((bullets[i].x >canvas.width || bullets[i].x+bullets[i].scaleX <0 || bullets[i].scaleX<0 || bullets[i].scaleY<0) && bullets[i].type != eLaser) {
+          bullets.splice(i--, 1);
         };
     };
 
 //remove enemies
   for(var i=0; i<enemies.length && enemies.length != 'undefined' && enemies.length != 0; i++) {
         if(enemies[i].x+enemies[i].type.width < 0 || enemies[i].x > canvas.width+10 || enemies[i].y > canvas.height || enemies[i].y+enemies[i].type.height < 0){
+          if (enemies[i].type == enemy3){
+            laserCleanup(i);
+          }else{
             enemies.splice(i--, 1);
+          };
         };
         //enemy down
         if (i >= 0) {
@@ -674,16 +671,9 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
       if (bullets[i].type == eLaser){
         var h = 0;
         var flag = false;
-        while (flag == false){
-          if (bullets[i].id != enemies[h].id) {
+        while (bullets[i].id != enemies[h].id){
             h++;
-          }else{
-            flag = true;
           };
-          if (enemies.length == 'undefined' || enemies.length == 0 || h > bullets.length){
-            flag = true;
-          };
-        };
         bullets[i].y = enemies[h].y+enemies[h].bulletY-(bullets[i].scaleY/2);
         bullets[i].x = enemies[h].x-bullets[i].scaleX;
       }else{
