@@ -122,6 +122,11 @@ particle4.src="img/particle4-1.png";
 particle5.src="img/particle5.png";
 particle6.src="img/particle6.png";
 
+//new era brings a new problem upon me and it is the fact that am running a 144hz screen and the game go crazy fast
+var stop = false;
+var frameCount = 0;
+var fps, fpsInterval, startTime, now, then, elapsed;
+
 //key check
 document.addEventListener("keydown", keydownkey1);
 document.addEventListener('keyup', keyupkey1);
@@ -277,8 +282,25 @@ function keyupkey1(keyu) {
       enemies.splice(i--, 1);
     };
 
+    //limits fps
+     function startAnimating(fps) {
+       fpsInterval = 1000 / fps;
+       then = Date.now();
+       startTime = then;
+       draw();
+     };
+
+startAnimating(60);
+
 //engine
 function draw() {
+
+  requestAnimationFrame(draw);
+
+  now = Date.now();
+  elapsed = now - then;
+
+  if (elapsed > fpsInterval) {
 
   //bckg scroll
   for (var i = 0; i < bckg.length; i++) {
@@ -297,8 +319,6 @@ function draw() {
 
 //ship
   ctx.drawImage(ship, xp, yp);
-
-  requestAnimationFrame(draw);
 
   BulletRate=Math.max(2, 6-bulletUp);
 
@@ -903,7 +923,10 @@ spread, xDecay and Ydecay 2, xspeed and yspeed mult.2, damage, sturdiness, knock
       //x, y, hp, speed x, speed y, accelInit.x, accelx, accelInit.y, accely, -knockback, type, bulletx, bullety, bullet rate, score, ft
       spawnEnemy(canvas.width, randomInt(0,canvas.height-enemy6.height), 12, 1, 0, 0, 0.1, 0, 0, 1, enemy6, 0, 20, 1, 4, 2);
     };
+
+    then = now - (elapsed % fpsInterval);
 //end
+ };
 
 };
 
